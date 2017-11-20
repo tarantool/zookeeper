@@ -591,7 +591,7 @@ lua_zoo_close(lua_State *L)
         handle->global_wctx = NULL;
     }
     
-    if (handle->connected_cond == NULL) {
+    if (handle->connected_cond != NULL) {
         fiber_cond_delete(handle->connected_cond);
         handle->connected_cond = NULL;
     }
