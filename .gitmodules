@@ -1,0 +1,3 @@
+[submodule "third_party/zookeeper"]
+	path = third_party/zookeeper
+	url = https://github.com/igorcoding/zookeeper.git
