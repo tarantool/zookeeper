@@ -1,5 +1,13 @@
 #include "driver.h"
 
+#ifndef ZOO_NOTCONNECTED_STATE
+#  define ZOO_NOTCONNECTED_STATE 999
+#endif
+
+#ifndef ZOO_READONLY_STATE
+#  define ZOO_READONLY_STATE 5
+#endif
+
 static int
 _zk_build_stat(lua_State *L, const struct Stat *stat);
 
@@ -511,11 +519,6 @@ _zk_clientid_free(clientid_t **clientid)
     }
 }
 
-static void
-_zk_tarantool_log(const char *message) {
-    say_info("zookeep: %s", message);
-}
-
 /**
  * initialize a zookeeper handle.
  **/
@@ -552,13 +555,13 @@ lua_zoo_init(lua_State *L)
         reconnect_timeout = luaL_checknumber(L, 5);
     }
     
-    handle->zh = zookeeper_init2(host, /* host */
-                                 NULL, /* watcher */
-                                 recv_timeout, /* recv_timeout */
-                                 clientid, /* clientid */
-                                 NULL, /* context */
-                                 flags, /* flags */
-                                 _zk_tarantool_log /* log_callback */);
+    handle->zh = zookeeper_init(host, /* host */
+                                NULL, /* watcher */
+                                recv_timeout, /* recv_timeout */
+                                clientid, /* clientid */
+                                NULL, /* context */
+                                flags /* flags */);
+    zoo_set_log_stream(stdout);
     handle->global_wctx = NULL;
     handle->connected_cond = NULL;
     handle->reconnect_timeout = reconnect_timeout;

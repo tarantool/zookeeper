@@ -1,7 +1,7 @@
 #include <tarantool/module.h>
 #include <lauxlib.h>
 
-#include <zookeeper.h>
+#include <zookeeper/zookeeper.h>
 
 #define ZOOKEEP_MT_NAME "__zookeeper_handle"
 #define ZOOKEEP_ACL_LIST_MT_NAME "__zookeeper_acl_list"

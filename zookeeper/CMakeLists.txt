@@ -1,5 +1,5 @@
 add_library(driver SHARED driver.c)
-target_link_libraries(driver zookeeper)
+target_link_libraries(driver ${Zookeeper_LIBRARIES})
 set_target_properties(driver PROPERTIES PREFIX "" OUTPUT_NAME "driver")
 install(TARGETS driver LIBRARY DESTINATION ${TARANTOOL_INSTALL_LIBDIR}/zookeeper)
 install(FILES init.lua DESTINATION ${TARANTOOL_INSTALL_LUADIR}/zookeeper)
