@@ -134,7 +134,7 @@ Returns:
 Parameters:
 
 * `path` - a path to a node to be deleted
-* version - a number specifying which version to delete. Default is **-1**, which is *all versions*.
+* `version` - a number specifying which version to delete. Default is **-1**, which is *all versions*.
 
 Returns:
 
@@ -158,7 +158,7 @@ Returns:
 Parameters:
 
 * `path` - a path to a node to set a value on
-* version - a number specifying which version to delete. Default is **-1**, which is *all versions*.
+* `version` - a number specifying which version to delete. Default is **-1**, which is *all versions*.
 
 Returns:
 
