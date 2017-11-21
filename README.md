@@ -1,14 +1,47 @@
 # ZooKeeper client for Tarantool
+--------------------------------
 
-## Overview
+## <a name="toc"></a>Table of contents
+--------------------------------------
+
+* [Overview](#overview)
+* [API reference](#api-ref)
+  * [zookeper.init()](#zk-init)
+  * [zookeeper.zerror()](#zk-zerror)
+  * [zookeeper.deterministic_conn_order()](#zk-det-conn-order)
+  * [zookeeper.set_log_level()](#zk-set-log-level)
+  * [z:start()](#z-start)
+  * [z:close()](#z-close)
+  * [z:state()](#z-state)
+  * [z:is_connected()](#z-is-conn)
+  * [z:wait_connected()](#z-wait-conn)
+  * [z:client_id()](#z-client-id)
+  * [z:set_watcher()](#z-set-watcher)
+  * [z:create()](#z-create)
+  * [z:ensure_path()](#z-ensure-path)
+  * [z:exists()](#z-exists)
+  * [z:delete()](#z-delete)
+  * [z:get()](#z-get)
+  * [z:set()](#z-set)
+  * [z:get_children()](#z-get-children)
+  * [z:get_children2()](#z-get-children2)
+
+## <a name="overview"></a>Overview
+----------------------------------
 
 ZooKeeper is a distributed application for managing and coordinating a large number of hosts across a cluster. It helps maintain objects like configuration information and hierarchical naming space and provides various services, such as distributed synchronization and leader election.
 
-## API reference
+[Back to TOC](#toc)
 
-`z = zookeeper.init(hosts, timeout, opts)` - create a ZooKeeper instance. No connection is established at this point.
+## <a name="api-ref"></a>API reference
+--------------------------------------
 
-Parameters:
+##### <a name="zk-init"></a>z = zookeeper.init(hosts, timeout, opts)
+--------------------------------------------------------------------
+
+Create a ZooKeeper instance. No connection is established at this point.
+
+**Parameters:**
 
 * `hosts` - a string of the format: *host1:port1,host2:port2,...*. Default is **127.0.0.1:2181**.
 * `timeout` - *recv_timeout* (ZooKeeper session timeout) in seconds. Default is **30000**.
@@ -19,39 +52,85 @@ Parameters:
   * `reconnect_timeout` - time in seconds to wait before reconnecting. Default is **1**.
   * `default_acl` - a default access control list (ACL) to use for all *create* requests. Must be a *zookeeper.acl.ACLList* instance. Default is **zookeeper.acl.ACLS.OPEN_ACL_UNSAFE**.
 
-`err = zookeeper.zerror(errorcode)` - get a string description for a ZooKeeper error code
+[Back to TOC](#toc)
 
-Parameters:
+##### <a name="zk-zerror"></a>err = zookeeper.zerror(errorcode)
+---------------------------------------------------------------
+
+Get a string description for a ZooKeeper error code.
+
+**Parameters:**
 
 * `errorcode` - a numeric ZooKeeper error code. Refer to the list of possible [API errors](#api-errors) and [client errors](#errors).
 
-`zookeeper.deterministic_conn_order(<boolean>)` - instruct ZooKeeper not to randomly choose a server from the hosts provided, but select them sequentially instead
+[Back to TOC](#toc)
 
-Parameters:
+##### <a name="zk-det-conn-order"></a>zookeeper.deterministic_conn_order(\<boolean\>)
+------------------------------------------------------------------------
 
-* `<boolean>` - if **true**, a deterministic connection order is enforced
+Instruct ZooKeeper not to randomly choose a server from the hosts provided, but select them sequentially instead.
 
-`zookeeper.set_log_level(zookeeper.const.log_level.*)` - set a ZooKeeper logging level
+**Parameters:**
 
-Parameters:
+* a boolean specifying whether a deterministic connection order should be enforced
+
+[Back to TOC](#toc)
+
+##### <a name="zk-set-log-level"></a>zookeeper.set_log_level(zookeeper.const.log_level.*)
+------------------------------------------------------------------------
+
+Set a ZooKeeper logging level.
+
+**Parameters:**
 
 * `zookeeper.const.log_level.*` - a constant corresponding to a certain logging level. Refer to the [list of acceptable values](#log-level).
 
+[Back to TOC](#toc)
+
 ### ZooKeeper instance methods
+------------------------------
 
-`z:start()` - start a ZooKeeper I/O loop. Connection is established at this stage.
+##### <a name="z-start"></a>z:start()
+-------------------------------------
 
-`z:close()` - destroy a ZooKeeper instance. After this method is called, nothing is operable and `zookeeper.init()` must be called again.
+Start a ZooKeeper I/O loop. Connection is established at this stage.
 
-`z:state()` - return the current ZooKeeper state as a number. Refer to the list of [possible values](#states).
+[Back to TOC](#toc)
+
+##### <a name="z-close"></a>z:close()
+-------------------------------------
+
+Destroy a ZooKeeper instance. After this method is called, nothing is operable and `zookeeper.init()` must be called again.
+
+[Back to TOC](#toc)
+
+##### <a name="z-state"></a>z:state()
+-------------------------------------
+
+Return the current ZooKeeper state as a number. Refer to the list of [possible values](#states).
 
 >Tip: to convert a number to a string name, use `zookeeper.const.states_rev[<number>]`.
 
-`z:is_connected()` - return **true** when `z:state()` == *zookeeper.const.states.CONNECTED*
+[Back to TOC](#toc)
 
-`z:wait_connected()` - wait until the value of `z:state()` becomes *CONNECTED*
+##### <a name="z-is-conn"></a>z:is_connected()
+----------------------------------------------
 
-`z:client_id()` - return a Lua table of the following form:
+Return **true** when `z:state()` == *zookeeper.const.states.CONNECTED*.
+
+[Back to TOC](#toc)
+
+##### <a name="z-wait-conn"></a>z:wait_connected()
+--------------------------------------------------
+
+Wait until the value of `z:state()` becomes *CONNECTED*.
+
+[Back to TOC](#toc)
+
+##### <a name="z-client-id"></a>z:client_id()
+---------------------------------------------
+
+Return a Lua table of the following form:
 
 ```
 {
@@ -60,9 +139,14 @@ Parameters:
 }
 ```
 
-`z:set_watcher(watcher_func, extra_context)` - set a watcher function called on every change in ZooKeeper
+[Back to TOC](#toc)
 
-Parameters:
+##### <a name="z-set-watcher"></a>z:set_watcher(watcher_func, extra_context)
+------------------------------------------------------------------------
+
+Set a watcher function called on every change in ZooKeeper.
+
+**Parameters:**
 
 * `watcher_func` - a function with the following signature:
   ```lua
@@ -75,7 +159,7 @@ Parameters:
       print('Extra context:', json.encode(context))
   end
   ```
-where:
+*where:*
 
   * `z` - a ZooKeeper instance
   * `type` - an event type. Refer to the [list of acceptable values](#watch-types).
@@ -85,29 +169,44 @@ where:
 
 * `extra_context` - a context passed to the watcher function
 
-`z:create(path, value, acl, flags)` - create a ZooKeeper node
+[Back to TOC](#toc)
 
-Parameters:
+##### <a name="z-create"></a>z:create(path, value, acl, flags)
+--------------------------------------------------------------
+
+Create a ZooKeeper node.
+
+**Parameters:**
 
 * `path` - a string of the format: `/path/to/node`. `/path/to` must exist.
 * `value` - a string value to store in a node (may be *nil*). Default is **nil**.
 * `acl` (a *zookeeper.acl.ACLList* instance) - an ACL to use. Default is **z.default_acl**.
 * `flags` - a combination of numeric [zookeeper.const.create_flags.\* constants](#create-flags).
 
-`z:ensure_path(path)` - make sure that a path (including all the parent nodes) exists
+[Back to TOC](#toc)
 
-Parameters:
+##### <a name="z-ensure-path"></a>z:ensure_path(path)
+-----------------------------------------------------
+
+Make sure that a path (including all the parent nodes) exists.
+
+**Parameters:**
 
 * `path` - a path to check
 
-`z:exists(path, watch)` - make sure that a path (including all the parent nodes) exists
+[Back to TOC](#toc)
 
-Parameters:
+##### <a name="z-exists"></a>z:exists(path, watch)
+--------------------------------------------------
+
+Make sure that a path (including all the parent nodes) exists.
+
+**Parameters:**
 
 * `path` - a path to check
 * `watch` (boolean) - specifies whether to include a path to a global watcher
 
-Returns:
+**Returns:**
 
 * a boolean indicating if the path exists
 * `stat` - node statistics
@@ -129,69 +228,97 @@ Returns:
 
 * a ZooKeeper return code. Refer to the list of possible [API errors](#api-errors) and [client errors](#errors).
 
-`z:delete(path, version)` - delete a node
+[Back to TOC](#toc)
 
-Parameters:
+##### <a name="z-delete"></a>z:delete(path, version)
+----------------------------------------------------
+
+Delete a node.
+
+**Parameters:**
 
 * `path` - a path to a node to be deleted
 * `version` - a number specifying which version to delete. Default is **-1**, which is *all versions*.
 
-Returns:
+**Returns:**
 
 * a ZooKeeper return code. Refer to the list of possible [API errors](#api-errors) and [client errors](#errors).
 
-`z:get(path, watch)` - get the value of a node
+[Back to TOC](#toc)
 
-Parameters:
+##### <a name="z-get"></a>z:get(path, watch)
+--------------------------------------------
+
+Get the value of a node.
+
+**Parameters:**
 
 * `path` - a path to a node that holds a needed value
 * `watch` (boolean) - specifies whether to include a path to a global watcher
 
-Returns:
+**Returns:**
 
 * `value` - the value of a node
 * `stat` - node statistics
 * a ZooKeeper return code. Refer to the list of possible [API errors](#api-errors) and [client errors](#errors).
 
-`z:set(path, version)` - set the value of a node
+[Back to TOC](#toc)
 
-Parameters:
+##### <a name="z-set"></a>z:set(path, version)
+----------------------------------------------
+
+Set the value of a node.
+
+**Parameters:**
 
 * `path` - a path to a node to set a value on
 * `version` - a number specifying which version to delete. Default is **-1**, which is *all versions*.
 
-Returns:
+**Returns:**
 
 * a boolean indicating if the path exists
 * `stat` - node statistics
 * a ZooKeeper return code. Refer to the list of possible [API errors](#api-errors) and [client errors](#errors).
 
-`z:get_children(path, watch)` - get the children of a node
+[Back to TOC](#toc)
 
-Parameters:
+##### <a name="z-get-children"></a>z:get_children(path, watch)
+--------------------------------------------------------------
+
+Get a node's children.
+
+**Parameters:**
 
 * `path` - a path to a node to get the children of
 * `watch` (boolean) - specifies whether to include a path to a global watcher
 
-Returns:
+**Returns:**
 
 * an array of strings, each representing a node's child
 * a ZooKeeper return code. Refer to the list of possible [API errors](#api-errors) and [client errors](#errors).
 
-`z:get_children2(path, watch)` - get a node's children and stat
+[Back to TOC](#toc)
 
-Parameters:
+##### <a name="z-get-children2"></a>z:get_children2(path, watch)
+----------------------------------------------------------------
+
+Get a node's children and statistics.
+
+**Parameters:**
 
 * `path` - a path to a node to get the children of
 * `stat` - node statistics
 * `watch` (boolean) - specifies whether to include a path to a global watcher
 
-Returns:
+**Returns:**
 
 * an array of strings, each representing a node's child
 * a ZooKeeper return code. Refer to the list of possible [API errors](#api-errors) and [client errors](#errors).
 
+[Back to TOC](#toc)
+
 ### ZooKeeper constants
+-----------------------
 
 `zookeeper.const` also contains a *\<key\>_rev* map for each key that holds a reverse (number-to-name) mapping. For example, *zookeeper.const.api_errors_rev*:
 
@@ -212,14 +339,18 @@ Returns:
 -118: ZSESSIONMOVED
 ```
 
+[Back to TOC](#toc)
+
 #### <a name="watch-types"></a>watch_types
 
 * NOTWATCHING: -2
-* SESSION: -1    
+* SESSION: -1
 * CREATED: 1
 * DELETED: 2
 * CHANGED: 3
 * CHILD: 4
+
+[Back to TOC](#toc)
 
 #### <a name="errors"></a>errors
 
@@ -232,6 +363,8 @@ Returns:
 * ZRUNTIMEINCONSISTENCY: -2
 * ZSYSTEMERROR: -1
 * ZOK: 0
+
+[Back to TOC](#toc)
 
 #### <a name="api-errors"></a>api_errors
 
@@ -251,6 +384,8 @@ Returns:
 * ZAPIERROR: -100
 * ZOK: 0
 
+[Back to TOC](#toc)
+
 #### <a name="states"></a>states
 
 * AUTH_FAILED: -113
@@ -261,6 +396,8 @@ Returns:
 * READONLY: 5
 * NOTCONNECTED: 999
 
+[Back to TOC](#toc)
+
 #### <a name="log-level"></a>log_level
 
 * ERROR: 1
@@ -268,10 +405,14 @@ Returns:
 * WARN: 2
 * DEBUG: 4
 
+[Back to TOC](#toc)
+
 #### <a name="create-flags"></a>create_flags
 
 * EPHEMERAL: 1
 * SEQUENCE: 2
+
+[Back to TOC](#toc)
 
 #### <a name="permissions"></a>permissions
 
@@ -280,3 +421,5 @@ Returns:
 * DELETE: 8
 * ADMIN: 16
 * ALL: 31
+
+[Back to TOC](#toc)
