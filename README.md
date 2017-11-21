@@ -25,6 +25,14 @@
   * [z:set()](#z-set)
   * [z:get_children()](#z-get-children)
   * [z:get_children2()](#z-get-children2)
+* [Appendix 1: ZooKeeper constants](#appndx-zk-constants)
+  * [watch_types](#watch-types)
+  * [errors](#errors)
+  * [api_errors](#api-errors)
+  * [states](#states)
+  * [log_level](#log-level)
+  * [create_flags](#create-flags)
+  * [permissions](#permissions) 
 
 ## <a name="overview"></a>Overview
 ----------------------------------
@@ -36,8 +44,8 @@ ZooKeeper is a distributed application for managing and coordinating a large num
 ## <a name="api-ref"></a>API reference
 --------------------------------------
 
-##### <a name="zk-init"></a>z = zookeeper.init(hosts, timeout, opts)
---------------------------------------------------------------------
+#### <a name="zk-init"></a>z = zookeeper.init(hosts, timeout, opts)
+-------------------------------------------------------------------
 
 Create a ZooKeeper instance. No connection is established at this point.
 
@@ -54,8 +62,8 @@ Create a ZooKeeper instance. No connection is established at this point.
 
 [Back to TOC](#toc)
 
-##### <a name="zk-zerror"></a>err = zookeeper.zerror(errorcode)
----------------------------------------------------------------
+#### <a name="zk-zerror"></a>err = zookeeper.zerror(errorcode)
+--------------------------------------------------------------
 
 Get a string description for a ZooKeeper error code.
 
@@ -65,8 +73,8 @@ Get a string description for a ZooKeeper error code.
 
 [Back to TOC](#toc)
 
-##### <a name="zk-det-conn-order"></a>zookeeper.deterministic_conn_order(\<boolean\>)
-------------------------------------------------------------------------
+#### <a name="zk-det-conn-order"></a>zookeeper.deterministic_conn_order(\<boolean\>)
+------------------------------------------------------------------------------------
 
 Instruct ZooKeeper not to randomly choose a server from the hosts provided, but select them sequentially instead.
 
@@ -76,8 +84,8 @@ Instruct ZooKeeper not to randomly choose a server from the hosts provided, but 
 
 [Back to TOC](#toc)
 
-##### <a name="zk-set-log-level"></a>zookeeper.set_log_level(zookeeper.const.log_level.*)
-------------------------------------------------------------------------
+#### <a name="zk-set-log-level"></a>zookeeper.set_log_level(zookeeper.const.log_level.*)
+----------------------------------------------------------------------------------------
 
 Set a ZooKeeper logging level.
 
@@ -90,22 +98,22 @@ Set a ZooKeeper logging level.
 ### ZooKeeper instance methods
 ------------------------------
 
-##### <a name="z-start"></a>z:start()
--------------------------------------
+#### <a name="z-start"></a>z:start()
+------------------------------------
 
 Start a ZooKeeper I/O loop. Connection is established at this stage.
 
 [Back to TOC](#toc)
 
-##### <a name="z-close"></a>z:close()
--------------------------------------
+#### <a name="z-close"></a>z:close()
+------------------------------------
 
 Destroy a ZooKeeper instance. After this method is called, nothing is operable and `zookeeper.init()` must be called again.
 
 [Back to TOC](#toc)
 
-##### <a name="z-state"></a>z:state()
--------------------------------------
+#### <a name="z-state"></a>z:state()
+------------------------------------
 
 Return the current ZooKeeper state as a number. Refer to the list of [possible values](#states).
 
@@ -113,22 +121,22 @@ Return the current ZooKeeper state as a number. Refer to the list of [possible v
 
 [Back to TOC](#toc)
 
-##### <a name="z-is-conn"></a>z:is_connected()
-----------------------------------------------
+#### <a name="z-is-conn"></a>z:is_connected()
+---------------------------------------------
 
 Return **true** when `z:state()` == *zookeeper.const.states.CONNECTED*.
 
 [Back to TOC](#toc)
 
-##### <a name="z-wait-conn"></a>z:wait_connected()
---------------------------------------------------
+#### <a name="z-wait-conn"></a>z:wait_connected()
+-------------------------------------------------
 
 Wait until the value of `z:state()` becomes *CONNECTED*.
 
 [Back to TOC](#toc)
 
-##### <a name="z-client-id"></a>z:client_id()
----------------------------------------------
+#### <a name="z-client-id"></a>z:client_id()
+--------------------------------------------
 
 Return a Lua table of the following form:
 
@@ -141,8 +149,8 @@ Return a Lua table of the following form:
 
 [Back to TOC](#toc)
 
-##### <a name="z-set-watcher"></a>z:set_watcher(watcher_func, extra_context)
-------------------------------------------------------------------------
+#### <a name="z-set-watcher"></a>z:set_watcher(watcher_func, extra_context)
+---------------------------------------------------------------------------
 
 Set a watcher function called on every change in ZooKeeper.
 
@@ -171,8 +179,8 @@ Set a watcher function called on every change in ZooKeeper.
 
 [Back to TOC](#toc)
 
-##### <a name="z-create"></a>z:create(path, value, acl, flags)
---------------------------------------------------------------
+#### <a name="z-create"></a>z:create(path, value, acl, flags)
+-------------------------------------------------------------
 
 Create a ZooKeeper node.
 
@@ -185,8 +193,8 @@ Create a ZooKeeper node.
 
 [Back to TOC](#toc)
 
-##### <a name="z-ensure-path"></a>z:ensure_path(path)
------------------------------------------------------
+#### <a name="z-ensure-path"></a>z:ensure_path(path)
+----------------------------------------------------
 
 Make sure that a path (including all the parent nodes) exists.
 
@@ -196,8 +204,8 @@ Make sure that a path (including all the parent nodes) exists.
 
 [Back to TOC](#toc)
 
-##### <a name="z-exists"></a>z:exists(path, watch)
---------------------------------------------------
+#### <a name="z-exists"></a>z:exists(path, watch)
+-------------------------------------------------
 
 Make sure that a path (including all the parent nodes) exists.
 
@@ -230,8 +238,8 @@ Make sure that a path (including all the parent nodes) exists.
 
 [Back to TOC](#toc)
 
-##### <a name="z-delete"></a>z:delete(path, version)
-----------------------------------------------------
+#### <a name="z-delete"></a>z:delete(path, version)
+---------------------------------------------------
 
 Delete a node.
 
@@ -246,8 +254,8 @@ Delete a node.
 
 [Back to TOC](#toc)
 
-##### <a name="z-get"></a>z:get(path, watch)
---------------------------------------------
+#### <a name="z-get"></a>z:get(path, watch)
+-------------------------------------------
 
 Get the value of a node.
 
@@ -264,8 +272,8 @@ Get the value of a node.
 
 [Back to TOC](#toc)
 
-##### <a name="z-set"></a>z:set(path, version)
-----------------------------------------------
+#### <a name="z-set"></a>z:set(path, version)
+---------------------------------------------
 
 Set the value of a node.
 
@@ -282,8 +290,8 @@ Set the value of a node.
 
 [Back to TOC](#toc)
 
-##### <a name="z-get-children"></a>z:get_children(path, watch)
---------------------------------------------------------------
+#### <a name="z-get-children"></a>z:get_children(path, watch)
+-------------------------------------------------------------
 
 Get a node's children.
 
@@ -299,8 +307,8 @@ Get a node's children.
 
 [Back to TOC](#toc)
 
-##### <a name="z-get-children2"></a>z:get_children2(path, watch)
-----------------------------------------------------------------
+#### <a name="z-get-children2"></a>z:get_children2(path, watch)
+---------------------------------------------------------------
 
 Get a node's children and statistics.
 
@@ -317,8 +325,8 @@ Get a node's children and statistics.
 
 [Back to TOC](#toc)
 
-### ZooKeeper constants
------------------------
+## <a name="appndx-zk-constants"></a>Appendix 1: ZooKeeper constants
+--------------------------------------------------------------------
 
 `zookeeper.const` also contains a *\<key\>_rev* map for each key that holds a reverse (number-to-name) mapping. For example, *zookeeper.const.api_errors_rev*:
 
@@ -341,7 +349,8 @@ Get a node's children and statistics.
 
 [Back to TOC](#toc)
 
-#### <a name="watch-types"></a>watch_types
+### <a name="watch-types"></a>watch_types
+-----------------------------------------
 
 * NOTWATCHING: -2
 * SESSION: -1
@@ -352,7 +361,8 @@ Get a node's children and statistics.
 
 [Back to TOC](#toc)
 
-#### <a name="errors"></a>errors
+### <a name="errors"></a>errors
+-------------------------------
 
 * ZINVALIDSTATE: -9
 * ZBADARGUMENTS: -8
@@ -366,7 +376,8 @@ Get a node's children and statistics.
 
 [Back to TOC](#toc)
 
-#### <a name="api-errors"></a>api_errors
+### <a name="api-errors"></a>api_errors
+---------------------------------------
 
 * ZSESSIONMOVED: -118
 * ZNOTHING: -117
@@ -386,7 +397,8 @@ Get a node's children and statistics.
 
 [Back to TOC](#toc)
 
-#### <a name="states"></a>states
+### <a name="states"></a>states
+-------------------------------
 
 * AUTH_FAILED: -113
 * EXPIRED_SESSION: -112
@@ -398,7 +410,8 @@ Get a node's children and statistics.
 
 [Back to TOC](#toc)
 
-#### <a name="log-level"></a>log_level
+### <a name="log-level"></a>log_level
+-------------------------------------
 
 * ERROR: 1
 * INFO: 3
@@ -407,14 +420,16 @@ Get a node's children and statistics.
 
 [Back to TOC](#toc)
 
-#### <a name="create-flags"></a>create_flags
+### <a name="create-flags"></a>create_flags
+-------------------------------------------
 
 * EPHEMERAL: 1
 * SEQUENCE: 2
 
 [Back to TOC](#toc)
 
-#### <a name="permissions"></a>permissions
+### <a name="permissions"></a>permissions
+-----------------------------------------
 
 * READ: 1
 * WRITE: 2
