@@ -62,38 +62,6 @@ _zk_check_zoo_acl(struct lua_State *L, int index)
 
 /***************** cb functions *****************/
 
-static int
-watcher_dispatch_fiber(va_list ap)
-{
-    struct lua_State *L = va_arg(ap, struct lua_State *);
-    
-    struct zhandle_t *zh = va_arg(ap, struct zhandle_t *);
-    int type = va_arg(ap, int);
-    int state = va_arg(ap, int);
-    const char *path = va_arg(ap, const char *);
-    void *watcherctx = va_arg(ap, void *);
-    
-    
-    printf("call dispatch\n");
-    (void) zh;
-    struct zk_global_wctx *wctx = (struct zk_global_wctx *) watcherctx;
-    int cbref = wctx->cbref;
-    int internal_ctx_ref = wctx->internal_ctx_ref;
-    int user_ctx_ref = wctx->user_ctx_ref;
-
-    lua_rawgeti(L, LUA_REGISTRYINDEX, cbref);
-    /* push internal ctx onto the stack (it should be a zokeep object). */
-    lua_rawgeti(L, LUA_REGISTRYINDEX, internal_ctx_ref);
-    /** push type onto the stack. */
-    lua_pushinteger(L, type);
-    /** push state onto the stack. */
-    lua_pushinteger(L, state);
-    /** push path onto the stack. */
-    lua_pushstring(L, path);
-    /** push user ctx onto the stack. */
-    lua_rawgeti(L, LUA_REGISTRYINDEX, user_ctx_ref);
-    lua_call(L, 5, 0);
-}
 void
 watcher_dispatch(zhandle_t *zh,
                  int type,
@@ -101,19 +69,6 @@ watcher_dispatch(zhandle_t *zh,
                  const char *path,
                  void *watcherctx)
 {
-    // struct zk_global_wctx *wctx = (struct zk_global_wctx *) watcherctx;
-    // int cbref = wctx->cbref;
-    
-    // struct lua_State *L = luaT_state();
-    // struct lua_State *child_L = lua_newthread(L);
-    
-    // struct fiber *f = fiber_new("gwatch_dispatch", watcher_dispatch_fiber);
-    // if (f == NULL) {
-    //     // TODO: memory
-    //     return;
-    // }
-    
-    // fiber_start(f, child_L, zh, type, state, path, watcherctx);
     (void) zh;
     struct zk_global_wctx *wctx = (struct zk_global_wctx *) watcherctx;
     lua_State *L = wctx->L;

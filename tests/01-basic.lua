@@ -55,7 +55,7 @@ end
 
 
 local function test_create(t, z)
-    t:plan(8)
+    t:plan(11)
     
     local path, rc = z:create('/newpath')
     t:is(path, '/newpath', 'create /newpath successful')
@@ -79,7 +79,19 @@ local function test_create(t, z)
     
     z:delete('/newpath')
     
-    -- TODO: tests on acl
+    local acl2_ref = zkacl.ACLList({ {
+        perms=bit.bor(zkconst.permissions.READ, zkconst.permissions.WRITE),
+        scheme='world',
+        id='anyone'
+    } })
+    local path, rc = z:create('/newpath', nil, acl2_ref)
+    t:is(path, '/newpath', 'path acl is ok')
+    t:is(rc, zkconst.ZOK, 'ZOK')
+    
+    local acl2 = z:get_acl('/newpath')
+    t:is(acl2, acl2_ref, 'ACL changed')
+    
+    z:delete('/newpath')
 end
 
 
