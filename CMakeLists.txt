@@ -30,3 +30,8 @@ endif(APPLE)
 
 # Build module
 add_subdirectory(zookeeper)
+
+add_custom_target(test
+                  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                  COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tests/run_all.sh
+                  DEPENDS driver)
