@@ -32,7 +32,7 @@
   * [states](#states)
   * [log_level](#log-level)
   * [create_flags](#create-flags)
-  * [permissions](#permissions) 
+  * [permissions](#permissions)
 
 ## <a name="overview"></a>Overview
 ----------------------------------
@@ -167,13 +167,15 @@ Set a watcher function called on every change in ZooKeeper.
       print('Extra context:', json.encode(context))
   end
   ```
-*where:*
+  *where:*
 
-  * `z` - a ZooKeeper instance
-  * `type` - an event type. Refer to the [list of acceptable values](#watch-types).
-  * `state` - an event state. Refer to the [list of acceptable values](#states).
-  * `path` - a path that specifies where an event occurred
-  * `context` - a variable passed to `z:set_watcher()` as the second argument
+  |Parameter|Description|
+  |---------|-----------|
+  |`z`|A ZooKeeper instance|
+  |`type`|An event type. Refer to the [list of acceptable values](#watch-types).|
+  |`state`|An event state. Refer to the [list of acceptable values](#states).|
+  |`path`|A path that specifies where an event occurred|
+  |`context`|A variable passed to `z:set_watcher()` as the second argument|
 
 * `extra_context` - a context passed to the watcher function
 
@@ -217,9 +219,8 @@ Make sure that a path (including all the parent nodes) exists.
 **Returns:**
 
 * a boolean indicating if the path exists
-* `stat` - node statistics
+* `stat` - node statistics of the following form:
 
-  > Note: `stat` has the following form:
   ```
   - cversion: 30
     mtime: 1511098164443
@@ -233,6 +234,22 @@ Make sure that a path (including all the parent nodes) exists.
     ctime: 1511098164443
     version: 0
   ```
+
+  *where:*
+
+  |Parameter|Description|
+  |---------|-----------|
+  |`cversion`|The number of changes to the children of this node|
+  |`mtime`|The time in milliseconds from epoch when this node was last modified|
+  |`pzxid`|The zxid of the change that last modified children of this node|
+  |`mzxid`|The zxid of the change that last modified this node|
+  |`ephemeralOwner`|The session ID of the owner of this node if the node is an ephemeral node. If it is not an ephemeral node, it is zero.|
+  |`aversion`|The number of changes to the ACL of this node|
+  |`czxid`|The zxid of the change that caused this node to be created|
+  |`dataLength`|The length of the data field of this node|
+  |`numChildren`|The number of children of this node|
+  |`ctime`|The time in milliseconds from epoch when this node was created|
+  |`version`|The number of changes to the data of this node|
 
 * a ZooKeeper return code. Refer to the list of possible [API errors](#api-errors) and [client errors](#errors).
 
@@ -328,113 +345,127 @@ Get a node's children and statistics.
 ## <a name="appndx-zk-constants"></a>Appendix 1: ZooKeeper constants
 --------------------------------------------------------------------
 
-`zookeeper.const` also contains a *\<key\>_rev* map for each key that holds a reverse (number-to-name) mapping. For example, *zookeeper.const.api_errors_rev*:
+`zookeeper.const` also contains a *\<key\>_rev* map for each key that holds a reverse (number-to-name) mapping. For example, *zookeeper.const.api_errors_rev* looks like this:
 
-```
--100: ZAPIERROR
--101: ZNONODE
--102: ZNOAUTH
--103: ZBADVERSION
--108: ZNOCHILDRENFOREPHEMERALS
--110: ZNODEEXISTS
--111: ZNOTEMPTY
--112: ZSESSIONEXPIRED
--113: ZINVALIDCALLBACK
--114: ZINVALIDACL
--115: ZAUTHFAILED
--116: ZCLOSING
--117: ZNOTHING
--118: ZSESSIONMOVED
-```
+|Code|Error|
+|----|----|
+|-118|ZSESSIONMOVED|
+|-117|ZNOTHING|
+|-116|ZCLOSING|
+|-115|ZAUTHFAILED|
+|-114|ZINVALIDACL|
+|-113|ZINVALIDCALLBACK|
+|-112|ZSESSIONEXPIRED|
+|-111|ZNOTEMPTY|
+|-110|ZNODEEXISTS|
+|-108|ZNOCHILDRENFOREPHEMERALS|
+|-103|ZBADVERSION|
+|-102|ZNOAUTH|
+|-101|ZNONODE|
+|-100|ZAPIERROR|
 
 [Back to TOC](#toc)
 
 ### <a name="watch-types"></a>watch_types
 -----------------------------------------
 
-* NOTWATCHING: -2
-* SESSION: -1
-* CREATED: 1
-* DELETED: 2
-* CHANGED: 3
-* CHILD: 4
+|Type|Code|Description|
+|----|----|-----------|
+|NOTWATCHING|-2|Watcher is inactive|
+|SESSION|-1|Watching for session-related events|
+|CREATED|1|Watching for node creation events. Triggered with a call to [z:exists()](#z-exists).|
+|DELETED|2|Watching for node deletion events. Triggerd with a call to [z:exists()](#z-exists), [z:get()](#z-get), [z:get_children()](#z-get-children), or [z:get_children2()](#z-get-children2).|
+|CHANGED|3|Watching for node change events. Triggered with a call to [z:exists()](#z-exists) or [z:get()](#z-get).|
+|CHILD|4|Watching for child-related events. Triggered with a call to [z:get_children()](#z-get-children) or [z:get_children2()](#z-get-children2).|
 
 [Back to TOC](#toc)
 
 ### <a name="errors"></a>errors
 -------------------------------
 
-* ZINVALIDSTATE: -9
-* ZBADARGUMENTS: -8
-* ZOPERATIONTIMEOUT: -7
-* ZUNIMPLEMENTED: -6
-* ZMARSHALLINGERROR: -5
-* ZCONNECTIONLOSS: -4
-* ZRUNTIMEINCONSISTENCY: -2
-* ZSYSTEMERROR: -1
-* ZOK: 0
+|Error|Code|Description|
+|----|----|-----------|
+|ZINVALIDSTATE|-9|Invalid zhandle state|
+|ZBADARGUMENTS|-8|Invalid arguments|
+|ZOPERATIONTIMEOUT|-7|Operation timeout|
+|ZUNIMPLEMENTED|-6|Operation is unimplemented|
+|ZMARSHALLINGERROR|-5|Error while marshalling or unmarshalling data|
+|ZCONNECTIONLOSS|-4|Connection to the server has been lost|
+|ZRUNTIMEINCONSISTENCY|-2|A runtime inconsistency was found|
+|ZSYSTEMERROR|-1|System error|
+|ZOK|0|Everything is OK|
 
 [Back to TOC](#toc)
 
 ### <a name="api-errors"></a>api_errors
 ---------------------------------------
 
-* ZSESSIONMOVED: -118
-* ZNOTHING: -117
-* ZCLOSING: -116
-* ZAUTHFAILED: -115
-* ZINVALIDACL: -114
-* ZINVALIDCALLBACK: -113
-* ZSESSIONEXPIRED: -112
-* ZNOTEMPTY: -111
-* ZNODEEXISTS: -110
-* ZNOCHILDRENFOREPHEMERALS: -108
-* ZBADVERSION: -103
-* ZNOAUTH: -102
-* ZNONODE: -101
-* ZAPIERROR: -100
-* ZOK: 0
+|Error|Code|Description|
+|----|----|----|
+|ZSESSIONMOVED|-118|Session moved to another server, so the operation is ignored|
+|ZNOTHING|-117| (not an error) no server responses to process|
+|ZCLOSING|-116| ZooKeeper is closing|
+|ZAUTHFAILED|-115|Client authentication failed|
+|ZINVALIDACL|-114|Invalid ACL specified|
+|ZINVALIDCALLBACK|-113|Invalid callback specified|
+|ZSESSIONEXPIRED|-112|The session has been expired by the server|
+|ZNOTEMPTY|-111|The node has children|
+|ZNODEEXISTS|-110|The node already exists|
+|ZNOCHILDRENFOREPHEMERALS|-108|Ephemeral nodes may not have children|
+|ZBADVERSION|-103|Version conflict|
+|ZNOAUTH|-102|Not authenticated|
+|ZNONODE|-101|Node does not exist|
+|ZAPIERROR|-100|API error|
+|ZOK|0|Everything is OK|
 
 [Back to TOC](#toc)
 
 ### <a name="states"></a>states
 -------------------------------
 
-* AUTH_FAILED: -113
-* EXPIRED_SESSION: -112
-* CONNECTING: 1
-* ASSOCIATING: 2
-* CONNECTED: 3
-* READONLY: 5
-* NOTCONNECTED: 999
+|State|Code|Description|
+|----|----|-----------|
+|AUTH_FAILED|-113|Authentication has failed|
+|EXPIRED_SESSION|-112|Session has expired|
+|CONNECTING|1|ZooKeeper is connecting|
+|ASSOCIATING|2|Information obtained from ZooKeeper is being associated with the connection|
+|CONNECTED|3|ZooKeeper is connected|
+|READONLY|5|ZooKeeper is in read-only mode, accepting only read requests|
+|NOTCONNECTED|999|ZooKeeper is not connected|
 
 [Back to TOC](#toc)
 
 ### <a name="log-level"></a>log_level
 -------------------------------------
 
-* ERROR: 1
-* INFO: 3
-* WARN: 2
-* DEBUG: 4
+|Name|Code|Description|
+|----|----|-----------|
+|ERROR|1|Log error events that might still allow the application to continue running|
+|WARN|2|Log potentially harmful situations|
+|INFO|3|Log informational messages that highlight the progress of the application at coarse-grained level
+|DEBUG|4|Log fine-grained informational events that are most useful to debug an application|
 
 [Back to TOC](#toc)
 
 ### <a name="create-flags"></a>create_flags
 -------------------------------------------
 
-* EPHEMERAL: 1
-* SEQUENCE: 2
+|Flag|Code|Description|
+|----|----|-----------|
+|EPHEMERAL|1|Create an ephemeral node|
+|SEQUENCE|2|Create a sequence node|
 
 [Back to TOC](#toc)
 
 ### <a name="permissions"></a>permissions
 -----------------------------------------
 
-* READ: 1
-* WRITE: 2
-* DELETE: 8
-* ADMIN: 16
-* ALL: 31
+|Permission|Code|Description|
+|----------|----|-----------|
+|READ|1|Can get data from a node and list its children|
+|WRITE|2|Can set data for a node|
+|DELETE|8|Can delete a child node|
+|ADMIN|16|Can set permissions|
+|ALL|31|Can do all of the above|
 
 [Back to TOC](#toc)
