@@ -62,6 +62,38 @@ _zk_check_zoo_acl(struct lua_State *L, int index)
 
 /***************** cb functions *****************/
 
+static int
+watcher_dispatch_fiber(va_list ap)
+{
+    struct lua_State *L = va_arg(ap, struct lua_State *);
+    
+    struct zhandle_t *zh = va_arg(ap, struct zhandle_t *);
+    int type = va_arg(ap, int);
+    int state = va_arg(ap, int);
+    const char *path = va_arg(ap, const char *);
+    void *watcherctx = va_arg(ap, void *);
+    
+    
+    printf("call dispatch\n");
+    (void) zh;
+    struct zk_global_wctx *wctx = (struct zk_global_wctx *) watcherctx;
+    int cbref = wctx->cbref;
+    int internal_ctx_ref = wctx->internal_ctx_ref;
+    int user_ctx_ref = wctx->user_ctx_ref;
+
+    lua_rawgeti(L, LUA_REGISTRYINDEX, cbref);
+    /* push internal ctx onto the stack (it should be a zokeep object). */
+    lua_rawgeti(L, LUA_REGISTRYINDEX, internal_ctx_ref);
+    /** push type onto the stack. */
+    lua_pushinteger(L, type);
+    /** push state onto the stack. */
+    lua_pushinteger(L, state);
+    /** push path onto the stack. */
+    lua_pushstring(L, path);
+    /** push user ctx onto the stack. */
+    lua_rawgeti(L, LUA_REGISTRYINDEX, user_ctx_ref);
+    lua_call(L, 5, 0);
+}
 void
 watcher_dispatch(zhandle_t *zh,
                  int type,
@@ -69,6 +101,19 @@ watcher_dispatch(zhandle_t *zh,
                  const char *path,
                  void *watcherctx)
 {
+    // struct zk_global_wctx *wctx = (struct zk_global_wctx *) watcherctx;
+    // int cbref = wctx->cbref;
+    
+    // struct lua_State *L = luaT_state();
+    // struct lua_State *child_L = lua_newthread(L);
+    
+    // struct fiber *f = fiber_new("gwatch_dispatch", watcher_dispatch_fiber);
+    // if (f == NULL) {
+    //     // TODO: memory
+    //     return;
+    // }
+    
+    // fiber_start(f, child_L, zh, type, state, path, watcherctx);
     (void) zh;
     struct zk_global_wctx *wctx = (struct zk_global_wctx *) watcherctx;
     lua_State *L = wctx->L;
@@ -78,7 +123,7 @@ watcher_dispatch(zhandle_t *zh,
 
     /** push lua watcher_fn onto the stack. */
     lua_rawgeti(L, LUA_REGISTRYINDEX, cbref);
-    /* push internal ctx onto the stack (it should be a zokeep object). */
+    /** push internal ctx onto the stack (it should be a zokeep object). */
     lua_rawgeti(L, LUA_REGISTRYINDEX, internal_ctx_ref);
     /** push type onto the stack. */
     lua_pushinteger(L, type);
@@ -144,7 +189,11 @@ _zk_data_cb(int rc,
     struct zk_data_result *cdata = (struct zk_data_result *) data;
     lua_State *L = cdata->L;
     
-    lua_pushlstring(L, value, value_len);
+    if (value == NULL) {
+        lua_pushnil(L);
+    } else {
+        lua_pushlstring(L, value, value_len);
+    }
     _zk_build_stat(L, stat);
     lua_pushinteger(L, rc);
     
@@ -278,12 +327,14 @@ _zk_build_string_vector(lua_State *L,
                         const struct String_vector *sv)
 {
     int i;
-    lua_newtable(L);
     if (sv != NULL) {
+        lua_newtable(L);
         for (i = 0; i < sv->count; ++i) {
             lua_pushstring(L, sv->data[i]);
             lua_rawseti(L, -2, i + 1);
         }
+    } else {
+        lua_pushnil(L);
     }
     return 0;
 }
@@ -405,6 +456,96 @@ lua_zoo_acl_tostring(lua_State *L)
                           i < zoo_acl->count-1 ? ", " : "");
     }
     lua_pushfstring(L, "ACLList [%s]", buf);
+    return 1;
+}
+
+static int
+lua_zoo_acl_totable(lua_State *L)
+{
+    struct ACL_vector *zoo_acl = _zk_check_zoo_acl(L, 1);
+    
+    if (zoo_acl != NULL) {
+        int i;
+        lua_newtable(L);
+        for (i = 0; i < zoo_acl->count; ++i) {
+            lua_newtable(L);
+            lua_pushstring(L, "perms");
+            lua_pushnumber(L, zoo_acl->data[i].perms);
+            lua_settable(L, -3);
+            lua_pushstring(L, "scheme");
+            lua_pushstring(L, zoo_acl->data[i].id.scheme);
+            lua_settable(L, -3);
+            lua_pushstring(L, "id");
+            lua_pushstring(L, zoo_acl->data[i].id.id);
+            lua_settable(L, -3);
+            lua_rawseti(L, -2, i + 1);
+        }
+    } else {
+        lua_pushnil(L);
+    }
+    return 1;
+}
+
+static int
+lua_zoo_acl_eq(lua_State *L)
+{
+    struct ACL_vector *acl1 = _zk_check_zoo_acl(L, 1);
+    struct ACL_vector *acl2 = _zk_check_zoo_acl(L, 2);
+    
+    if (acl1 == NULL && acl2 == NULL) {
+        lua_pushboolean(L, 1);
+        return 1;
+    }
+    
+    if (acl1 == NULL || acl2 == NULL) {
+        lua_pushboolean(L, 0);
+        return 1;
+    }
+    
+    if (acl1->count != acl2-> count) {
+        lua_pushboolean(L, 0);
+        return 1;
+    }
+    
+    int i;
+    for (i = 0; i < acl1->count; ++i) {
+        if (acl1->data[i].perms != acl1->data[i].perms) {
+            lua_pushboolean(L, 0);
+            return 1;
+        }
+        
+        int scheme1_len = strlen(acl1->data[i].id.scheme);
+        int scheme2_len = strlen(acl2->data[i].id.scheme);
+        
+        if (scheme1_len != scheme2_len) {
+            lua_pushboolean(L, 0);
+            return 1;
+        }
+        
+        if (strncmp(acl1->data[i].id.scheme,
+                    acl2->data[i].id.scheme,
+                    scheme1_len) != 0) {
+            lua_pushboolean(L, 0);
+            return 1;
+        }
+        
+        int id1_len = strlen(acl1->data[i].id.id);
+        int id2_len = strlen(acl2->data[i].id.id);
+        
+        if (id1_len != id2_len) {
+            lua_pushboolean(L, 0);
+            return 1;
+        }
+        
+        if (strncmp(acl1->data[i].id.id,
+                    acl2->data[i].id.id,
+                    id1_len) != 0) {
+            lua_pushboolean(L, 0);
+            return 1;
+        }
+    }
+    
+    lua_pushboolean(L, 1);
     return 1;
 }
 
@@ -1371,8 +1512,10 @@ luaopen_zookeeper_driver(lua_State *L)
 {
     /*** ACL ***/
     static const struct luaL_Reg acl_methods[] = {
+        {"totable",    lua_zoo_acl_totable},
+        {"__eq",       lua_zoo_acl_eq},
         {"__tostring", lua_zoo_acl_tostring},
-        {"__gc", lua_zoo_destroy_acl_list},
+        {"__gc",       lua_zoo_destroy_acl_list},
         {NULL, NULL}
     };
     
