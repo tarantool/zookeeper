@@ -33,6 +33,7 @@
   * [log_level](#log-level)
   * [create_flags](#create-flags)
   * [permissions](#permissions)
+* [Copyright & License](#copyright-license)
 
 ## <a name="overview"></a>Overview
 ----------------------------------
@@ -467,5 +468,11 @@ Get a node's children and statistics.
 |DELETE|8|Can delete a child node|
 |ADMIN|16|Can set permissions|
 |ALL|31|Can do all of the above|
+
+[Back to TOC](#toc)
+
+## <a name="copyright-license"></a>Copyright & License
+
+* [LICENSE](LICENSE.md)
 
 [Back to TOC](#toc)
