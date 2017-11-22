@@ -106,19 +106,22 @@ zookeeper_methods = {
     end,
     
     ensure_path = function(self, path)
-        if self:exists(path) then
-            return
+        local exists, _, rc = self:exists(path)
+        if exists then
+            return const.ZOK
+        elseif rc ~= const.ZOK and rc ~= const.api_errors.ZNONODE then
+            return rc
         end
         
         local parent, last_node = _split_parent_path(path)
         if parent ~= nil then
-            self:ensure_path(parent)
+            local rc = self:ensure_path(parent)
+            if rc ~= const.ZOK then
+                return rc
+            end
         end
         local _, rc = self:create(path)
-        if rc ~= const.ZOK then
-            error(string.format("error creating node %s: %s", path),
-                  driver.zerror(rc))
-        end
+        return rc
     end,
     
     exists = function(self, path, watch)
@@ -171,7 +174,7 @@ zookeeper_methods = {
         return driver.get_acl(self._handle, path)
     end,
     
-    set_acl = function(self, path, version, acl)
+    set_acl = function(self, path, acl, version)
         return driver.set_acl(self._handle, path, version, acl)
     end,
 }
