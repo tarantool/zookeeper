@@ -199,7 +199,7 @@ Create a ZooKeeper node.
 #### <a name="z-ensure-path"></a>z:ensure_path(path)
 ----------------------------------------------------
 
-Make sure that a path (including all the parent nodes) exists.
+Make sure that a path exists.
 
 **Parameters:**
 
@@ -210,7 +210,7 @@ Make sure that a path (including all the parent nodes) exists.
 #### <a name="z-exists"></a>z:exists(path, watch)
 -------------------------------------------------
 
-Make sure that a path (including all the parent nodes) exists.
+Make sure that a node (including all the parent nodes) exists.
 
 **Parameters:**
 
@@ -333,12 +333,12 @@ Get a node's children and statistics.
 **Parameters:**
 
 * `path` - a path to a node to get the children of
-* `stat` - node statistics
 * `watch` (boolean) - specifies whether to include a path to a global watcher
 
 **Returns:**
 
 * an array of strings, each representing a node's child
+* `stat` - node statistics
 * a ZooKeeper return code. Refer to the list of possible [API errors](#api-errors) and [client errors](#errors).
 
 [Back to TOC](#toc)
