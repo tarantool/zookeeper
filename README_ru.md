@@ -6,7 +6,7 @@
 
 * [Что такое ZooKeeper](#overview)
 * [Справочник по API](#api-ref)
-  * [zookeper.init()](#zk-init)
+  * [zookeeper.init()](#zk-init)
   * [zookeeper.zerror()](#zk-zerror)
   * [zookeeper.deterministic_conn_order()](#zk-det-conn-order)
   * [zookeeper.set_log_level()](#zk-set-log-level)
@@ -553,7 +553,7 @@ print(a == zookeeper.acl.ACLS.OPEN_ACL_UNSAFE)  -- будет выведено t
 
 **Возвращаемые переменные:**
 
-* Lua-таблица, использовавшася при создании экземпляра *zookeeper.acl.ACLList*
+* Lua-таблица, использовавшаяся при создании экземпляра *zookeeper.acl.ACLList*
 
 [К содержанию](#toc)
 
