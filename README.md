@@ -298,7 +298,7 @@ Set the value of a node.
 **Parameters:**
 
 * `path` - a path to a node to set a value on
-* `version` - a number specifying which version to delete. Default is **-1**, which is *all versions*.
+* `version` - a number specifying which version to delete. Default is **-1** (create a new version).
 
 **Returns:**
 
@@ -372,12 +372,12 @@ Get a node's children and statistics.
 
 |Type|Code|Description|
 |----|----|-----------|
-|NOTWATCHING|-2|Watcher is inactive|
+|NOTWATCHING|-2|Watcher is not set|
 |SESSION|-1|Watching for session-related events|
-|CREATED|1|Watching for node creation events. Triggered with a call to [z:exists()](#z-exists).|
-|DELETED|2|Watching for node deletion events. Triggerd with a call to [z:exists()](#z-exists), [z:get()](#z-get), [z:get_children()](#z-get-children), or [z:get_children2()](#z-get-children2).|
-|CHANGED|3|Watching for node change events. Triggered with a call to [z:exists()](#z-exists) or [z:get()](#z-get).|
-|CHILD|4|Watching for child-related events. Triggered with a call to [z:get_children()](#z-get-children) or [z:get_children2()](#z-get-children2).|
+|CREATED|1|Watching for node creation events|
+|DELETED|2|Watching for node deletion events|
+|CHANGED|3|Watching for node change events|
+|CHILD|4|Watching for child-related events|
 
 [Back to TOC](#toc)
 
@@ -472,6 +472,7 @@ Get a node's children and statistics.
 [Back to TOC](#toc)
 
 ## <a name="copyright-license"></a>Copyright & License
+------------------------------------------------------
 
 * [LICENSE](LICENSE.md)
 
