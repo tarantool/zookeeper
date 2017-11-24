@@ -403,21 +403,21 @@ ZooKeeper - это распределенное приложение для уп
 
 |Ошибка|Код|Описание|
 |----|----|----|
-|ZSESSIONMOVED|-118|Session moved to another server, so the operation is ignored|
-|ZNOTHING|-117| (not an error) no server responses to process|
-|ZCLOSING|-116| ZooKeeper is closing|
-|ZAUTHFAILED|-115|Client authentication failed|
-|ZINVALIDACL|-114|Invalid ACL specified|
-|ZINVALIDCALLBACK|-113|Invalid callback specified|
-|ZSESSIONEXPIRED|-112|The session has been expired by the server|
-|ZNOTEMPTY|-111|The node has children|
-|ZNODEEXISTS|-110|The node already exists|
-|ZNOCHILDRENFOREPHEMERALS|-108|Ephemeral nodes may not have children|
-|ZBADVERSION|-103|Version conflict|
-|ZNOAUTH|-102|Not authenticated|
-|ZNONODE|-101|Node does not exist|
-|ZAPIERROR|-100|API error|
-|ZOK|0|Everything is OK|
+|ZSESSIONMOVED|-118|Сессия перемещена на другой сервер, поэтому операция игнорируется|
+|ZNOTHING|-117| (Не является ошибкой) нечего обрабатывать, ответы сервера отсутствуют|
+|ZCLOSING|-116| ZooKeeper завершает работу|
+|ZAUTHFAILED|-115|Не удалось аутентифицировать клиента|
+|ZINVALIDACL|-114|Указан неверный ACL|
+|ZINVALIDCALLBACK|-113|Указана неверная функция обратного вызова|
+|ZSESSIONEXPIRED|-112|Сервер принудительно завершил сессию|
+|ZNOTEMPTY|-111|Узел имеет потомков|
+|ZNODEEXISTS|-110|Узел уже существует|
+|ZNOCHILDRENFOREPHEMERALS|-108|Эфемерные узлы не могут иметь потомков|
+|ZBADVERSION|-103|Конфликт версий|
+|ZNOAUTH|-102|Аутентификация не пройдена|
+|ZNONODE|-101|Узел не существует|
+|ZAPIERROR|-100|Ошибка API|
+|ZOK|0|Операция выполнена успешно|
 
 [К содержанию](#toc)
 
@@ -426,13 +426,13 @@ ZooKeeper - это распределенное приложение для уп
 
 |Состояние|Код|Описание|
 |----|----|-----------|
-|AUTH_FAILED|-113|Authentication has failed|
-|EXPIRED_SESSION|-112|Session has expired|
-|CONNECTING|1|ZooKeeper is connecting|
-|ASSOCIATING|2|Information obtained from ZooKeeper is being associated with the connection|
-|CONNECTED|3|ZooKeeper is connected|
-|READONLY|5|ZooKeeper is in read-only mode, accepting only read requests|
-|NOTCONNECTED|999|ZooKeeper is not connected|
+|AUTH_FAILED|-113|Аутентификация не удалась|
+|EXPIRED_SESSION|-112|Сессия истекла|
+|CONNECTING|1|ZooKeeper подключается|
+|ASSOCIATING|2|Информация, полученная от ZooKeeper, привязывается к подключению|
+|CONNECTED|3|ZooKeeper подключен|
+|READONLY|5|ZooKeeper находится в режиме *read-only* и принимает только запросы на чтение|
+|NOTCONNECTED|999|ZooKeeper не подключен|
 
 [К содержанию](#toc)
 
@@ -441,10 +441,10 @@ ZooKeeper - это распределенное приложение для уп
 
 |Уровень|Код|Описание|
 |----|----|-----------|
-|ERROR|1|Log error events that might still allow the application to continue running|
-|WARN|2|Log potentially harmful situations|
-|INFO|3|Log informational messages that highlight the progress of the application at coarse-grained level
-|DEBUG|4|Log fine-grained informational events that are most useful to debug an application|
+|ERROR|1|Журналировать ошибки, после которых приложение может продолжить работу|
+|WARN|2|Журналировать ситуации, которые потенциально могут нанести приложению вред|
+|INFO|3|Журналировать высокоуровневые информационные сообщения, описывающие прогресс приложения|
+|DEBUG|4|Журналировать детальные информационные сообщения, помогающие при отладке приложения|
 
 [К содержанию](#toc)
 
