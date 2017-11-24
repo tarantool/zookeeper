@@ -11,6 +11,7 @@ set(TARANTOOL_FIND_REQUIRED ON)
 find_package(Tarantool)
 
 # Find Zookeeper
+set(Zookeeper_FIND_REQUIRED ON)
 find_package(Zookeeper)
 message(STATUS "Zookeeper_INCLUDE_DIRS is ${Zookeeper_INCLUDE_DIRS}")
 message(STATUS "Zookeeper_LIBRARIES is ${Zookeeper_LIBRARIES}")
