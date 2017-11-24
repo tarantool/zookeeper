@@ -92,7 +92,7 @@ ZooKeeper - это распределенное приложение для уп
 
 **Параметры:**
 
-* `zookeeper.const.log_level.*` - a constant corresponding to a certain logging level. Refer to the [list of acceptable values](#log-level).
+* `zookeeper.const.log_level.*` - константа, соответствующая определенному уровню журналирования. См. [список допустимых значений](#log-level).
 
 [К содержанию](#toc)
 
@@ -102,49 +102,49 @@ ZooKeeper - это распределенное приложение для уп
 #### <a name="z-start"></a>z:start()
 ------------------------------------
 
-Start a ZooKeeper I/O loop. Connection is established at this stage.
+Запускает цикл ввода-вывода ZooKeeper. Подключение создается на данном этапе.
 
 [К содержанию](#toc)
 
 #### <a name="z-close"></a>z:close()
 ------------------------------------
 
-Destroy a ZooKeeper instance. After this method is called, nothing is operable and `zookeeper.init()` must be called again.
+Уничтожает экземпляр ZooKeeper. После вызова данного метода для возобновления работы необходимо снова вызвать `zookeeper.init()`.
 
 [К содержанию](#toc)
 
 #### <a name="z-state"></a>z:state()
 ------------------------------------
 
-Return the current ZooKeeper state as a number. Refer to the list of [possible values](#states).
+Возвращает текущее состояние ZooKeeper в виде числа. См. список [возможных значений](#states).
 
->Tip: to convert a number to a string name, use `zookeeper.const.states_rev[<number>]`.
+>Подсказка: чтобы перевести число в строковое описание состояния, используйте `zookeeper.const.states_rev[<число>]`.
 
 [К содержанию](#toc)
 
 #### <a name="z-is-conn"></a>z:is_connected()
 ---------------------------------------------
 
-Return **true** when `z:state()` == *zookeeper.const.states.CONNECTED*.
+Возвращает **true**, если `z:state()` == *zookeeper.const.states.CONNECTED*.
 
 [К содержанию](#toc)
 
 #### <a name="z-wait-conn"></a>z:wait_connected()
 -------------------------------------------------
 
-Wait until the value of `z:state()` becomes *CONNECTED*.
+Ждет, пока `z:state()` не примет значение *zookeeper.const.states.CONNECTED*.
 
 [К содержанию](#toc)
 
 #### <a name="z-client-id"></a>z:client_id()
 --------------------------------------------
 
-Return a Lua table of the following form:
+Возвращает Lua-таблицу следующего вида:
 
 ```
 {
-	client_id = <number>, -- current session ID
-	passwd = <string> -- password
+	client_id = <число>, -- ID текущей сессии
+	passwd = <строка> -- пароль
 }
 ```
 
@@ -153,74 +153,74 @@ Return a Lua table of the following form:
 #### <a name="z-set-watcher"></a>z:set_watcher(watcher_func, extra_context)
 ---------------------------------------------------------------------------
 
-Set a watcher function called on every change in ZooKeeper.
+Устанавливает функцию-наблюдатель, вызываемую при каждом изменении в ZooKeeper.
 
 **Параметры:**
 
-* `watcher_func` - a function with the following signature:
+* `watcher_func` - функция со следующей сигнатурой:
   ```lua
   local function global_watcher(z, type, state, path, context)
       print(string.format(
-  		    'Global watcher. type = %s, state = %s, path = %s',
+  		    'Глобальная функция-наблюдатель. тип = %s, состояние = %s, путь = %s',
   		    zookeeper.const.watch_types_rev[type],
   		    zookeeper.const.states_rev[state],
   		    path))
-      print('Extra context:', json.encode(context))
+      print('Дополнительный контекст:', json.encode(context))
   end
   ```
   *где:*
 
   |Параметр|Описание|
   |---------|-----------|
-  |`z`|A ZooKeeper instance|
-  |`type`|An event type. Refer to the [list of acceptable values](#watch-types).|
-  |`state`|An event state. Refer to the [list of acceptable values](#states).|
-  |`path`|A path that specifies where an event occurred|
-  |`context`|A variable passed to `z:set_watcher()` as the second argument|
+  |`z`|Экземпляр ZooKeeper|
+  |`type`|Тип события. См. [список допустимых значений](#watch-types).|
+  |`state`|Состояние события. См. [список допустимых значений](#states).|
+  |`path`|Путь, указывающий, где произошло событие|
+  |`context`|Переменная, которая передается в `z:set_watcher()` в качестве второго аргумента|
 
-* `extra_context` - a context passed to the watcher function
+* `extra_context` - контекст, который передается в функцию-наблюдатель
 
 [К содержанию](#toc)
 
 #### <a name="z-create"></a>z:create(path, value, acl, flags)
 -------------------------------------------------------------
 
-Create a ZooKeeper node.
+Создает узел ZooKeeper.
 
 **Параметры:**
 
-* `path` - a string of the format: `/path/to/node`. `/path/to` must exist.
-* `value` - a string value to store in a node (may be *nil*). Default is **nil**.
-* `acl` (a *zookeeper.acl.ACLList* instance) - an ACL to use. Default is **z.default_acl**.
-* `flags` - a combination of numeric [zookeeper.const.create_flags.\* constants](#create-flags).
+* `path` - строка следующего формата: `/путь/до/узла`. `/путь/до` должен существовать.
+* `value` - строковое значение, которое будет храниться на узле (может быть *nil*). Значение по умолчанию - **nil**.
+* `acl` (экземпляр *zookeeper.acl.ACLList*) - используемый ACL. Значение по умолчанию - **z.default_acl**.
+* `flags` - комбинация числовых [констант zookeeper.const.create_flags.\*](#create-flags).
 
 [К содержанию](#toc)
 
 #### <a name="z-ensure-path"></a>z:ensure_path(path)
 ----------------------------------------------------
 
-Make sure that a path (including all the parent nodes) exists.
+Проверяет, что данный путь (включая все родительские узлы) существует.
 
 **Параметры:**
 
-* `path` - a path to check
+* `path` - проверяемый путь
 
 [К содержанию](#toc)
 
 #### <a name="z-exists"></a>z:exists(path, watch)
 -------------------------------------------------
 
-Make sure that a path (including all the parent nodes) exists.
+Проверяет, что данный путь (включая все родительские узлы) существует.
 
 **Параметры:**
 
-* `path` - a path to check
-* `watch` (boolean) - specifies whether to include a path to a global watcher
+* `path` - проверяемый путь
+* `watch` (булевое значение) - определяет, необходимо ли указывать путь до глобальной функции-наблюдателя
 
 **Возвращаемые переменные:**
 
-* a boolean indicating if the path exists
-* `stat` - node statistics of the following form:
+* булевое значение, указывающее, существует ли данный путь
+* `stat` - статистика узла в следующей форме:
 
   ```
   - cversion: 30
@@ -240,106 +240,106 @@ Make sure that a path (including all the parent nodes) exists.
 
   |Параметр|Описание|
   |---------|-----------|
-  |`cversion`|The number of changes to the children of this node|
-  |`mtime`|The time in milliseconds from epoch when this node was last modified|
-  |`pzxid`|The zxid of the change that last modified children of this node|
-  |`mzxid`|The zxid of the change that last modified this node|
-  |`ephemeralOwner`|The session ID of the owner of this node if the node is an ephemeral node. If it is not an ephemeral node, it is zero.|
-  |`aversion`|The number of changes to the ACL of this node|
-  |`czxid`|The zxid of the change that caused this node to be created|
-  |`dataLength`|The length of the data field of this node|
-  |`numChildren`|The number of children of this node|
-  |`ctime`|The time in milliseconds from epoch when this node was created|
-  |`version`|The number of changes to the data of this node|
+  |`cversion`|Число изменений, внесенных в потомков данного узла|
+  |`mtime`|Время (в миллисекундах), начиная с опорной даты, последнего изменения в данном узле|
+  |`pzxid`|Идентификатор zxid последнего изменения в потомках данного узла|
+  |`mzxid`|Идентификатор zxid последнего изменения в данном узле|
+  |`ephemeralOwner`|ID сессии владельца данного узла (если узел эфемерный). Если узел не эфемерный, данный параметр равен нулю.|
+  |`aversion`|Число изменений, внесенных в ACL данного узла|
+  |`czxid`|Идентификатор zxid изменения, в результате которого был создан данный узел|
+  |`dataLength`|Длина поля данных данного узла|
+  |`numChildren`|Число потомков данного узла|
+  |`ctime`|Время (в миллисекундах), начиная с опорной даты, создания данного узла|
+  |`version`|Число изменений данных в данном узле|
 
-* a ZooKeeper return code. Refer to the list of possible [API errors](#api-errors) and [client errors](#errors).
+* код возврата ZooKeeper. См. список возможных [ошибок API](#api-errors) и [ошибок клиента](#errors).
 
 [К содержанию](#toc)
 
 #### <a name="z-delete"></a>z:delete(path, version)
 ---------------------------------------------------
 
-Delete a node.
+Удаляет узел.
 
 **Параметры:**
 
-* `path` - a path to a node to be deleted
-* `version` - a number specifying which version to delete. Default is **-1**, which is *all versions*.
+* `path` - путь до удаляемого узла
+* `version` - номер, указывающий, какую версию необходимо удалить. Значение по умолчанию - **-1** (*все версии*).
 
 **Возвращаемые переменные:**
 
-* a ZooKeeper return code. Refer to the list of possible [API errors](#api-errors) and [client errors](#errors).
+* код возврата ZooKeeper. См. список возможных [ошибок API](#api-errors) и [ошибок клиента](#errors).
 
 [К содержанию](#toc)
 
 #### <a name="z-get"></a>z:get(path, watch)
 -------------------------------------------
 
-Get the value of a node.
+Получает значение узла.
 
 **Параметры:**
 
-* `path` - a path to a node that holds a needed value
-* `watch` (boolean) - specifies whether to include a path to a global watcher
+* `path` - путь до узла, содержащего необходимое значение
+* `watch` (булевое значение) - определяет, необходимо ли указывать путь до глобальной функции-наблюдателя
 
 **Возвращаемые переменные:**
 
-* `value` - the value of a node
-* `stat` - node statistics
-* a ZooKeeper return code. Refer to the list of possible [API errors](#api-errors) and [client errors](#errors).
+* `value` - значение узла
+* `stat` - статистика узла
+* код возврата ZooKeeper. См. список возможных [ошибок API](#api-errors) и [ошибок клиента](#errors).
 
 [К содержанию](#toc)
 
 #### <a name="z-set"></a>z:set(path, version)
 ---------------------------------------------
 
-Set the value of a node.
+Устанавливает значение узла.
 
 **Параметры:**
 
-* `path` - a path to a node to set a value on
-* `version` - a number specifying which version to delete. Default is **-1**, which is *all versions*.
+* `path` - путь до узла, на котором устанавливается значение
+* `version` - номер, указывающий, какую версию необходимо удалить. Значение по умолчанию - **-1** (*все версии*).
 
 **Возвращаемые переменные:**
 
-* a boolean indicating if the path exists
-* `stat` - node statistics
-* a ZooKeeper return code. Refer to the list of possible [API errors](#api-errors) and [client errors](#errors).
+* булевое значение, указывающее, существует ли данный путь
+* `stat` - статистика узла
+* код возврата ZooKeeper. См. список возможных [ошибок API](#api-errors) и [ошибок клиента](#errors).
 
 [К содержанию](#toc)
 
 #### <a name="z-get-children"></a>z:get_children(path, watch)
 -------------------------------------------------------------
 
-Get a node's children.
+Получает потомков узла.
 
 **Параметры:**
 
-* `path` - a path to a node to get the children of
-* `watch` (boolean) - specifies whether to include a path to a global watcher
+* `path` - путь до узла, потомков которого необходимо получить
+* `watch` (булевое значение) - определяет, необходимо ли указывать путь до глобальной функции-наблюдателя
 
 **Возвращаемые переменные:**
 
-* an array of strings, each representing a node's child
-* a ZooKeeper return code. Refer to the list of possible [API errors](#api-errors) and [client errors](#errors).
+* массив строк, каждая из которых представляет собой потомка узла
+* код возврата ZooKeeper. См. список возможных [ошибок API](#api-errors) и [ошибок клиента](#errors).
 
 [К содержанию](#toc)
 
 #### <a name="z-get-children2"></a>z:get_children2(path, watch)
 ---------------------------------------------------------------
 
-Get a node's children and statistics.
+Получает потомков и статистику узла.
 
 **Параметры:**
 
-* `path` - a path to a node to get the children of
-* `stat` - node statistics
-* `watch` (boolean) - specifies whether to include a path to a global watcher
+* `path` - путь до узла, потомков и статистику которого необходимо получить
+* `stat` - статистика узла
+* `watch` (булевое значение) - определяет, необходимо ли указывать путь до глобальной функции-наблюдателя
 
 **Возвращаемые переменные:**
 
-* an array of strings, each representing a node's child
-* a ZooKeeper return code. Refer to the list of possible [API errors](#api-errors) and [client errors](#errors).
+* массив строк, каждая из которых представляет собой потомка узла
+* код возврата ZooKeeper. См. список возможных [ошибок API](#api-errors) и [ошибок клиента](#errors).
 
 [К содержанию](#toc)
 
@@ -372,12 +372,12 @@ Get a node's children and statistics.
 
 |Тип|Код|Описание|
 |----|----|-----------|
-|NOTWATCHING|-2|Watcher is inactive|
-|SESSION|-1|Watching for session-related events|
-|CREATED|1|Watching for node creation events. Triggered with a call to [z:exists()](#z-exists).|
-|DELETED|2|Watching for node deletion events. Triggerd with a call to [z:exists()](#z-exists), [z:get()](#z-get), [z:get_children()](#z-get-children), or [z:get_children2()](#z-get-children2).|
-|CHANGED|3|Watching for node change events. Triggered with a call to [z:exists()](#z-exists) or [z:get()](#z-get).|
-|CHILD|4|Watching for child-related events. Triggered with a call to [z:get_children()](#z-get-children) or [z:get_children2()](#z-get-children2).|
+|NOTWATCHING|-2|Функция-наблюдатель неактивна|
+|SESSION|-1|Отслеживаются связанные с сессией события|
+|CREATED|1|Отслеживаются случаи создания узла. Функция устанавливается при вызове [z:exists()](#z-exists).|
+|DELETED|2|Отслеживаются случаи удаления узла. Функция устанавливается при вызове [z:exists()](#z-exists), [z:get()](#z-get), [z:get_children()](#z-get-children) или [z:get_children2()](#z-get-children2).|
+|CHANGED|3|Отслеживаются случаи изменения узла. Функция устанавливается при вызове [z:exists()](#z-exists) или [z:get()](#z-get).|
+|CHILD|4|Отслеживаются связанные с потомками события. Функция устанавливается при вызове [z:get_children()](#z-get-children) или [z:get_children2()](#z-get-children2).|
 
 [К содержанию](#toc)
 
@@ -386,15 +386,15 @@ Get a node's children and statistics.
 
 |Ошибка|Код|Описание|
 |----|----|-----------|
-|ZINVALIDSTATE|-9|Invalid zhandle state|
-|ZBADARGUMENTS|-8|Invalid arguments|
-|ZOPERATIONTIMEOUT|-7|Operation timeout|
-|ZUNIMPLEMENTED|-6|Operation is unimplemented|
-|ZMARSHALLINGERROR|-5|Error while marshalling or unmarshalling data|
-|ZCONNECTIONLOSS|-4|Connection to the server has been lost|
-|ZRUNTIMEINCONSISTENCY|-2|A runtime inconsistency was found|
-|ZSYSTEMERROR|-1|System error|
-|ZOK|0|Everything is OK|
+|ZINVALIDSTATE|-9|Неверное состояние zhandle|
+|ZBADARGUMENTS|-8|Неверные аргументы|
+|ZOPERATIONTIMEOUT|-7|Операция закончилась по таймауту|
+|ZUNIMPLEMENTED|-6|Операция не реализована|
+|ZMARSHALLINGERROR|-5|Ошибка при маршалинге или демаршалинге данных|
+|ZCONNECTIONLOSS|-4|Утеряно подключение к серверу|
+|ZRUNTIMEINCONSISTENCY|-2|При выполнении программы обнаружена неконсистентность|
+|ZSYSTEMERROR|-1|Системная ошибка|
+|ZOK|0|Операция выполнена успешно|
 
 [К содержанию](#toc)
 
@@ -453,8 +453,8 @@ Get a node's children and statistics.
 
 |Флаг|Код|Описание|
 |----|----|-----------|
-|EPHEMERAL|1|Create an ephemeral node|
-|SEQUENCE|2|Create a sequence node|
+|EPHEMERAL|1|Создать эфемерный узел|
+|SEQUENCE|2|Создать последовательный узел|
 
 [К содержанию](#toc)
 
@@ -463,11 +463,11 @@ Get a node's children and statistics.
 
 |Полномочия|Код|Описание|
 |----------|----|-----------|
-|READ|1|Can get data from a node and list its children|
-|WRITE|2|Can set data for a node|
-|DELETE|8|Can delete a child node|
-|ADMIN|16|Can set permissions|
-|ALL|31|Can do all of the above|
+|READ|1|Можно получать данные узла и список его потомков|
+|WRITE|2|Можно устанавливать значения узла|
+|DELETE|8|Можно удалять дочерние узлы|
+|ADMIN|16|Можно выдавать полномочия|
+|ALL|31|Можно делать все перечисленное выше|
 
 [К содержанию](#toc)
 
