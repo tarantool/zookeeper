@@ -1,3 +1,4 @@
+sudo apt-get update
 sudo apt-get install -y lsb-release
 
 echo "Installing Tarantool 1.7"
