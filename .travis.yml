@@ -11,15 +11,12 @@ env:
     global:
       - PRODUCT=tarantool-zookeeper
     matrix:
-#      - OS=el DIST=6
+      - OS=el DIST=6
       - OS=el DIST=7
       - OS=fedora DIST=24
       - OS=fedora DIST=25
-#      - OS=ubuntu DIST=precise
-#      - OS=ubuntu DIST=trusty
+      - OS=ubuntu DIST=trusty
       - OS=ubuntu DIST=xenial
-      - OS=ubuntu DIST=yakkety
-#      - OS=debian DIST=wheezy
       - OS=debian DIST=jessie
       - OS=debian DIST=stretch
 
@@ -39,7 +36,7 @@ env:
 
 script:
   - git describe --long
-  - git clone https://github.com/packpack/packpack.git packpack
+  - git clone https://github.com/igorcoding/packpack.git packpack
   - packpack/packpack
 
 before_deploy:
@@ -80,7 +77,7 @@ deploy:
 
 notifications:
   email:
-    recipients:
-      - build@tarantool.org
+    recipients: []
+      # - build@tarantool.org
     on_success: change
     on_failure: always

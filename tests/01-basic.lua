@@ -1,7 +1,7 @@
 #!/usr/bin/env tarantool
 
-package.path = "../?/init.lua;./?/init.lua"
-package.cpath = "../?.so;../?.dylib;./?.so;./?.dylib"
+package.path = "../?/init.lua;./?/init.lua;" .. package.path
+package.cpath = "../?.so;../?.dylib;./?.so;./?.dylib;" .. package.cpath
 
 local tap = require 'tap'
 local zookeeper = require 'zookeeper'
@@ -16,7 +16,7 @@ local function test_connection(t, z)
     t:is(z:is_connected(), false, 'z:is_connected == false')
     
     z:start()
-    z:wait_connected()
+    z:wait_connected(10)
     
     t:is(z:state(), zkconst.states.CONNECTED, 'z moved to CONNECTED state')
     t:ok(z:is_connected(), 'z:is_connected == true')

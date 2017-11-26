@@ -89,8 +89,8 @@ zookeeper_methods = {
         return false
     end,
     
-    wait_connected = function(self)
-        return driver.wait_connected(self._handle)
+    wait_connected = function(self, timeout)
+        return driver.wait_connected(self._handle, timeout)
     end,
     
     create = function(self, path, value, acl, flags)

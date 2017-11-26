@@ -1,7 +1,7 @@
 #!/usr/bin/env tarantool
 
-package.path = "../?/init.lua;./?/init.lua"
-package.cpath = "../?.so;../?.dylib;./?.so;./?.dylib"
+package.path = "../?/init.lua;./?/init.lua;" .. package.path
+package.cpath = "../?.so;../?.dylib;./?.so;./?.dylib;" .. package.cpath
 
 local fiber = require 'fiber'
 local tap = require 'tap'
@@ -509,7 +509,7 @@ local function main()
     local hosts = get_hosts()
     local z = zookeeper.init(hosts)
     z:start()
-    z:wait_connected()
+    z:wait_connected(10)
     
     tap.test('test_global_watch_connect', test_global_watch_connect)
     tap.test('test_global_watch_connect_watcher_sleep', test_global_watch_connect_watcher_sleep)

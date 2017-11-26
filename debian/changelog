@@ -1,0 +1,4 @@
+tarantool-zookeeper (0.0.1) stable; urgency=medium
+  * Initial release.
+
+ -- Igor Latkin <igorcoding@gmail.com>  Wed, 22 Nov 2017 18:26:41 +0300

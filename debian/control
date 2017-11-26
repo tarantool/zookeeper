@@ -1,0 +1,18 @@
+Source: tarantool-zookeeper
+Priority: optional
+Section: database
+Maintainer: Igor Latkin <igorcoding@gmail.com>
+Build-Depends: debhelper (>= 9), cdbs, cmake (>= 2.8),
+               tarantool-dev (>= 1.6.8.0),
+               libzookeeper-st-dev (>= 3.4.5), libzookeeper-st2 (>= 3.4.5)
+Standards-Version: 3.9.6
+Homepage: https://github.com/tarantool/zookeeper
+Vcs-Git: git://github.com/tarantool/zookeeper.git
+Vcs-Browser: https://github.com/tarantool/zookeeper
+
+Package: tarantool-zookeeper
+Architecture: i386 amd64 armhf arm64
+Depends: tarantool (>= 1.6.8.0), libzookeeper-st2 (>= 3.4.5), ${shlibs:Depends}, ${misc:Depends}
+Pre-Depends: ${misc:Pre-Depends}
+Description: tarantool-zookeeper is a Zookeeper client for Tarantool
+ This package provides a Zookeeper bindings for Tarantool.

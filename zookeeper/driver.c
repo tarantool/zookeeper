@@ -464,7 +464,7 @@ lua_zoo_acl_eq(lua_State *L)
     
     int i;
     for (i = 0; i < acl1->count; ++i) {
-        if (acl1->data[i].perms != acl1->data[i].perms) {
+        if (acl1->data[i].perms != acl2->data[i].perms) {
             lua_pushboolean(L, 0);
             return 1;
         }
@@ -812,6 +812,11 @@ lua_zoo_wait_connected(lua_State *L)
 {
     struct lua_zoo_handle *handle = _zk_check_zoo_handle(L, 1);
     
+    double timeout = -1;
+    if (!lua_isnil(L, 2)) {
+        timeout = luaL_checknumber(L, 2);
+    }
+    
     if (zoo_state(handle->zh) == ZOO_CONNECTED_STATE) {
         return 0;
     }
@@ -819,12 +824,25 @@ lua_zoo_wait_connected(lua_State *L)
     if (handle->connected_cond == NULL) {
         handle->connected_cond = fiber_cond_new();
     }
-    int ret = fiber_cond_wait(handle->connected_cond);
-    if (ret == 0) {
-        // wakeup
-        return 0;
+    int ret;
+    if (timeout < 0) {
+        ret = fiber_cond_wait(handle->connected_cond);
+        if (ret == 0) {
+            // wakeup
+            return 0;
+        }
+        return luaL_error(L, "unexpected error");
+    } else {
+        ret = fiber_cond_wait_timeout(handle->connected_cond, timeout);
+        if (ret == 0) {
+            // wakeup
+            return 0;
+        } else if (ret == -1) {
+            return luaL_error(L, "timeout");
+        }
+        
+        return luaL_error(L, "unexpected error");
     }
-    return luaL_error(L, "unexpected error");
 }
 
 static int
