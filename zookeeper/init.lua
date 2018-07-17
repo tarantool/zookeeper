@@ -189,7 +189,7 @@ return {
         
         timeout = tonumber(timeout)
         if timeout == nil then
-            timeout = 30000
+            timeout = 1 * 24 * 60 * 60 * 1000 -- 30000
         end
         
         if opts == nil then
