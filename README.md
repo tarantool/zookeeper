@@ -5,6 +5,7 @@
 --------------------------------------
 
 * [Overview](#overview)
+* [Installation](#installation)
 * [API reference](#api-ref)
   * [zookeper.init()](#zk-init)
   * [zookeeper.zerror()](#zk-zerror)
@@ -41,6 +42,28 @@
 ZooKeeper is a distributed application for managing and coordinating a large number of hosts across a cluster. It helps maintain objects like configuration information and hierarchical naming space and provides various services, such as distributed synchronization and leader election.
 
 [Back to TOC](#toc)
+
+## <a name="installation"></a>Installation
+
+Using a package manager (CentOS, Fedora, Debian, Ubuntu):
+
+* [Add][tarantool_repo] a tarantool repository.
+* Install tarantool-zookeeper package.
+
+Using tarantoolctl rocks:
+
+* Install dependencies:
+  - CentOS / Fedora: tarantool-devel, zookeeper-native
+    ([full list][deps_centos]).
+  - Debian / Ubuntu: tarantool-dev, libzookeeper-st-dev, libzookeeper-st2
+    ([full list][deps_debian]).
+* tarantoolctl rocks install zookeeper
+
+[Back to TOC](#toc)
+
+[tarantool_repo]: https://tarantool.io/en/download/
+[deps_centos]: https://github.com/tarantool/zookeeper/blob/master/rpm/tarantool-zookeeper.spec#L9-L16
+[deps_debian]: https://github.com/tarantool/zookeeper/blob/master/debian/control#L5-L15
 
 ## <a name="api-ref"></a>API reference
 --------------------------------------
