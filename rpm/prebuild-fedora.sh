@@ -19,7 +19,7 @@ gpgcheck=0
 EOF
 
 sudo dnf -q makecache -y --disablerepo='*' --enablerepo='tarantool_1_7'
-sudo dnf -y install tarantool
+sudo dnf -y install tarantool wget
 
 echo "Installing JRE"
 wget --no-cookies --no-check-certificate --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie" \
