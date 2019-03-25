@@ -28,7 +28,7 @@ env:
 
 script:
   - git describe --long
-  - git clone https://github.com/igorcoding/packpack.git packpack
+  - git clone https://github.com/packpack/packpack.git packpack
   - packpack/packpack
 
 before_deploy:
