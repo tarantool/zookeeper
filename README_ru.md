@@ -5,6 +5,7 @@
 -------------------------------
 
 * [Что такое ZooKeeper](#overview)
+* [Установка](#installation)
 * [Справочник по API](#api-ref)
   * [zookeeper.init()](#zk-init)
   * [zookeeper.zerror()](#zk-zerror)
@@ -50,6 +51,28 @@
 ZooKeeper - это распределенное приложение для управления кластером, состоящим из большого количества узлов. Оно облегчает работу с такими объектами, как информация о конфигурации системы и иерархическое пространство имен, а также предоставляет различные сервисы, среди которых распределенная синхронизация и выборы лидера.
 
 [К содержанию](#toc)
+
+## <a name="installation"></a>Установка
+
+С помощью пакетного менеджера (CentOS, Fedora, Debian, Ubuntu):
+
+* [Добавить][tarantool_repo] репозиторий tarantool.
+* Установить пакет tarantool-zookeeper.
+
+С помощью tarantoolctl rocks:
+
+* Установить зависимости:
+  - CentOS / Fedora: tarantool-devel, zookeeper-native
+    ([полный список][deps_centos]).
+  - Debian / Ubuntu: tarantool-dev, libzookeeper-st-dev, libzookeeper-st2
+    ([полный список][deps_debian]).
+* tarantoolctl rocks install zookeeper
+
+[К содержанию](#toc)
+
+[tarantool_repo]: https://tarantool.io/ru/download/
+[deps_centos]: https://github.com/tarantool/zookeeper/blob/master/rpm/tarantool-zookeeper.spec#L9-L16
+[deps_debian]: https://github.com/tarantool/zookeeper/blob/master/debian/control#L5-L15
 
 ## <a name="api-ref"></a>Справочник по API
 ------------------------------------------
