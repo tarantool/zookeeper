@@ -69,3 +69,6 @@ CTestTestfile.cmake
 build.luarocks
 build
 packpack
+
+# IDE
+.vscode

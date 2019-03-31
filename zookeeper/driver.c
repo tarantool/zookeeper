@@ -1,5 +1,7 @@
 #include "driver.h"
 
+#include <string.h>
+
 #ifndef ZOO_NOTCONNECTED_STATE
 #  define ZOO_NOTCONNECTED_STATE 999
 #endif
@@ -75,6 +77,9 @@ watcher_dispatch(zhandle_t *zh,
     int cbref = wctx->cbref;
     int internal_ctx_ref = wctx->internal_ctx_ref;
     int user_ctx_ref = wctx->user_ctx_ref;
+
+    say_warn("Global watcher dispatch. L=%p cbref=%d internal_ctx_ref=%d user_ctx_ref=%d | type=%d state=%d path=%s", 
+             L, cbref, internal_ctx_ref, user_ctx_ref, type, state, path);
 
     /** push lua watcher_fn onto the stack. */
     lua_rawgeti(L, LUA_REGISTRYINDEX, cbref);
@@ -518,6 +523,9 @@ _zk_global_wctx_init(lua_State *L,
     if (wctx == NULL) {
         luaL_error(L, "zookeep: out of memory");
     }
+
+    say_warn("Setting global watcher. L=%p cbref=%d internal_ctx_ref=%d user_ctx_ref=%d", 
+             L, cbref, internal_ctx_ref, user_ctx_ref);
     wctx->L = L;
     wctx->zhref = zhref;
     wctx->cbref = cbref;
@@ -615,6 +623,32 @@ _zk_clientid_free(clientid_t **clientid)
     }
 }
 
+static void
+_zoo_handle_reinit(struct lua_zoo_handle *handle) 
+{
+    if (handle == NULL) {
+        return;
+    }
+    
+    if (handle->zh != NULL) {
+        zookeeper_close(handle->zh);
+        handle->zh = NULL;
+    }
+
+    handle->zh = zookeeper_init(handle->host, /* host */
+                                NULL, /* watcher */
+                                handle->recv_timeout, /* recv_timeout */
+                                handle->client_id, /* clientid */
+                                NULL, /* context */
+                                handle->flags /* flags */);
+    handle->prev_state = ZOO_NOTCONNECTED_STATE;
+
+    if (handle->global_wctx != NULL) {
+        zoo_set_watcher(handle->zh, watcher_dispatch);
+        zoo_set_context(handle->zh, (void *) handle->global_wctx);
+    }
+}
+
 /**
  * initialize a zookeeper handle.
  **/
@@ -651,20 +685,17 @@ lua_zoo_init(lua_State *L)
         reconnect_timeout = luaL_checknumber(L, 5);
     }
     
-    handle->zh = zookeeper_init(host, /* host */
-                                NULL, /* watcher */
-                                recv_timeout, /* recv_timeout */
-                                clientid, /* clientid */
-                                NULL, /* context */
-                                flags /* flags */);
     zoo_set_log_stream(stdout);
+    handle->zh = NULL;
     handle->global_wctx = NULL;
     handle->connected_cond = NULL;
     handle->reconnect_timeout = reconnect_timeout;
-    handle->prev_state = ZOO_NOTCONNECTED_STATE;
-    if (clientid != NULL) {
-        _zk_clientid_free(&clientid);
-    }
+    handle->client_id = clientid;
+    handle->flags = flags;
+    handle->recv_timeout = recv_timeout;
+    handle->host = strdup(host);
+
+    _zoo_handle_reinit(handle);
     return 1;
 }
 
@@ -690,6 +721,15 @@ lua_zoo_close(lua_State *L)
     if (handle->connected_cond != NULL) {
         fiber_cond_delete(handle->connected_cond);
         handle->connected_cond = NULL;
+    }
+
+    if (handle->client_id != NULL) {
+        _zk_clientid_free(&handle->client_id);
+    }
+
+    if (handle->host != NULL) {
+        free(handle->host);
+        handle->host = NULL;
     }
     
     lua_pushinteger(L, ret);
@@ -737,10 +777,11 @@ lua_zoo_process(lua_State *L)
         timeout = 0;
         
         rc = zookeeper_interest(handle->zh, &fd, &interest, &tv);
+        say_warn("zookeep: handle: %p; zookeeper_interest rc = %d", handle, rc);
         if (rc != ZOK) {
             say_crit(
-                "zookeep: error while receiving zookeeper interest. rc = %d",
-                rc);
+                "zookeep: error while receiving zookeeper interest. rc = %d; fd = %d; state = %d",
+                rc, fd, zoo_state(handle->zh));
             break;
         }
         
@@ -788,6 +829,7 @@ lua_zoo_process(lua_State *L)
         } else {
             say_warn(
                 "zookeep: reconnecting in %.3fs", handle->reconnect_timeout);
+            // _zoo_handle_reinit(handle); // FIXME: uncomment for proper reconnects
             fiber_sleep(handle->reconnect_timeout);
             continue;
         }
