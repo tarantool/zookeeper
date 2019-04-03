@@ -78,7 +78,7 @@ watcher_dispatch(zhandle_t *zh,
     int internal_ctx_ref = wctx->internal_ctx_ref;
     int user_ctx_ref = wctx->user_ctx_ref;
 
-    say_warn("Global watcher dispatch. L=%p cbref=%d internal_ctx_ref=%d user_ctx_ref=%d | type=%d state=%d path=%s", 
+    say_debug("Global watcher dispatch. L=%p cbref=%d internal_ctx_ref=%d user_ctx_ref=%d | type=%d state=%d path=%s", 
              L, cbref, internal_ctx_ref, user_ctx_ref, type, state, path);
 
     /** push lua watcher_fn onto the stack. */
@@ -524,7 +524,7 @@ _zk_global_wctx_init(lua_State *L,
         luaL_error(L, "zookeep: out of memory");
     }
 
-    say_warn("Setting global watcher. L=%p cbref=%d internal_ctx_ref=%d user_ctx_ref=%d", 
+    say_debug("Setting global watcher. L=%p cbref=%d internal_ctx_ref=%d user_ctx_ref=%d", 
              L, cbref, internal_ctx_ref, user_ctx_ref);
     wctx->L = L;
     wctx->zhref = zhref;
@@ -777,7 +777,7 @@ lua_zoo_process(lua_State *L)
         timeout = 0;
         
         rc = zookeeper_interest(handle->zh, &fd, &interest, &tv);
-        say_warn("zookeep: handle: %p; zookeeper_interest rc = %d", handle, rc);
+        say_info("zookeep: handle: %p; zookeeper_interest rc = %d", handle, rc);
         if (rc != ZOK) {
             say_crit(
                 "zookeep: error while receiving zookeeper interest. rc = %d; fd = %d; state = %d",
@@ -829,7 +829,7 @@ lua_zoo_process(lua_State *L)
         } else {
             say_warn(
                 "zookeep: reconnecting in %.3fs", handle->reconnect_timeout);
-            // _zoo_handle_reinit(handle); // FIXME: uncomment for proper reconnects
+            _zoo_handle_reinit(handle);
             fiber_sleep(handle->reconnect_timeout);
             continue;
         }
