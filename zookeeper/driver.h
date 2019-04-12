@@ -27,8 +27,12 @@ struct zk_local_wctx {
 
 struct lua_zoo_handle {
     zhandle_t *zh;
-    struct zk_global_wctx *global_wctx; /* global watcher context */
+    char *host;
+    int flags;
+    int recv_timeout;
+    clientid_t *client_id;
     double reconnect_timeout;
+    struct zk_global_wctx *global_wctx; /* global watcher context */
     struct fiber_cond *connected_cond;
     int prev_state;
 };
