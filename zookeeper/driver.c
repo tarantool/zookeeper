@@ -623,11 +623,11 @@ _zk_clientid_free(clientid_t **clientid)
     }
 }
 
-static void
+static int
 _zoo_handle_reinit(struct lua_zoo_handle *handle) 
 {
     if (handle == NULL) {
-        return;
+        return 0;
     }
     
     if (handle->zh != NULL) {
@@ -642,11 +642,15 @@ _zoo_handle_reinit(struct lua_zoo_handle *handle)
                                 NULL, /* context */
                                 handle->flags /* flags */);
     handle->prev_state = ZOO_NOTCONNECTED_STATE;
+    if (handle->zh == NULL) {
+        return errno;
+    }
 
     if (handle->global_wctx != NULL) {
         zoo_set_watcher(handle->zh, watcher_dispatch);
         zoo_set_context(handle->zh, (void *) handle->global_wctx);
     }
+    return 0;
 }
 
 /**
@@ -662,6 +666,7 @@ lua_zoo_init(lua_State *L)
     double reconnect_timeout = 1;
     clientid_t *clientid = NULL;
     int flags = 0;
+    int err;
 
     struct lua_zoo_handle *handle = (struct lua_zoo_handle *) lua_newuserdata(
         L, sizeof(struct lua_zoo_handle));
@@ -695,7 +700,10 @@ lua_zoo_init(lua_State *L)
     handle->recv_timeout = recv_timeout;
     handle->host = strdup(host);
 
-    _zoo_handle_reinit(handle);
+    err = _zoo_handle_reinit(handle);
+    if (err != 0) {
+        return luaL_error(L, strerror(err));
+    }
     return 1;
 }
 
@@ -768,6 +776,8 @@ lua_zoo_process(lua_State *L)
     double timeout = 0;
     struct timeval tv;
     int state = 0;
+    int reconnect = 0;
+    int err = 0;
         
     while (true) {
         fd = -1;
@@ -775,61 +785,75 @@ lua_zoo_process(lua_State *L)
         coio_events = 0;
         zoo_events = 0;
         timeout = 0;
-        
-        rc = zookeeper_interest(handle->zh, &fd, &interest, &tv);
-        say_info("zookeep: handle: %p; zookeeper_interest rc = %d", handle, rc);
-        if (rc != ZOK) {
-            say_crit(
-                "zookeep: error while receiving zookeeper interest. rc = %d; fd = %d; state = %d",
-                rc, fd, zoo_state(handle->zh));
-            break;
-        }
-        
-        if (fd != -1) {
-            if (interest & ZOOKEEPER_READ) {
-                coio_events |= COIO_READ;
-            } else {
-                coio_events &= ~COIO_READ;
-            }
-            if (interest & ZOOKEEPER_WRITE) {
-                coio_events |= COIO_WRITE;
-            } else {
-                coio_events &= ~COIO_WRITE;
-            }
-            
-            timeout = (double)(tv.tv_sec + (double) tv.tv_usec / 1000000.0);
-            coio_events = coio_wait(fd, coio_events, timeout);
-            
-            if (fiber_is_cancelled()) {
+        reconnect = 0;
+        err = 0;
+
+        if (handle->zh == NULL) {
+            reconnect = 1;
+        } else {
+            rc = zookeeper_interest(handle->zh, &fd, &interest, &tv);
+            say_info("zookeep: handle: %p; zookeeper_interest rc = %d", handle, rc);
+            if (rc != ZOK) {
+                say_crit(
+                    "zookeep: error while receiving zookeeper interest. rc = %d; fd = %d; state = %d",
+                    rc, fd, zoo_state(handle->zh));
                 break;
             }
             
-            if (coio_events == 0) {
-                // timeout
-                continue;
-            }
-            
-            zoo_events = 0;
-            if (coio_events & COIO_READ) {
-                zoo_events |= ZOOKEEPER_READ;
-            }
-            if (coio_events & COIO_WRITE) {
-                zoo_events |= ZOOKEEPER_WRITE;
-            }
-            rc = zookeeper_process(handle->zh, zoo_events);
-            
-            state = zoo_state(handle->zh);
-            if (state != handle->prev_state) {
-                if (state == ZOO_CONNECTED_STATE
-                        && handle->connected_cond != NULL) {
-                    fiber_cond_broadcast(handle->connected_cond);
+            if (fd != -1) {
+                if (interest & ZOOKEEPER_READ) {
+                    coio_events |= COIO_READ;
+                } else {
+                    coio_events &= ~COIO_READ;
                 }
-                handle->prev_state = state;
+                if (interest & ZOOKEEPER_WRITE) {
+                    coio_events |= COIO_WRITE;
+                } else {
+                    coio_events &= ~COIO_WRITE;
+                }
+                
+                timeout = (double)(tv.tv_sec + (double) tv.tv_usec / 1000000.0);
+                coio_events = coio_wait(fd, coio_events, timeout);
+                
+                if (fiber_is_cancelled()) {
+                    break;
+                }
+                
+                if (coio_events == 0) {
+                    // timeout
+                    continue;
+                }
+                
+                zoo_events = 0;
+                if (coio_events & COIO_READ) {
+                    zoo_events |= ZOOKEEPER_READ;
+                }
+                if (coio_events & COIO_WRITE) {
+                    zoo_events |= ZOOKEEPER_WRITE;
+                }
+                rc = zookeeper_process(handle->zh, zoo_events);
+                
+                state = zoo_state(handle->zh);
+                if (state != handle->prev_state) {
+                    if (state == ZOO_CONNECTED_STATE
+                            && handle->connected_cond != NULL) {
+                        fiber_cond_broadcast(handle->connected_cond);
+                    }
+                    handle->prev_state = state;
+                }
+            } else {
+                reconnect = 1;
             }
-        } else {
+        }
+
+        if (reconnect) {
+            err = _zoo_handle_reinit(handle);
+            if (err != 0) {
+                say_error(
+                    "zookeep: recreate handle failed: %d/%s", err, strerror(err));
+            }
             say_warn(
-                "zookeep: reconnecting in %.3fs", handle->reconnect_timeout);
-            _zoo_handle_reinit(handle);
+                    "zookeep: reconnecting in %.3fs", handle->reconnect_timeout);
             fiber_sleep(handle->reconnect_timeout);
             continue;
         }
