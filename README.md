@@ -1,6 +1,15 @@
 # ZooKeeper client for Tarantool
 --------------------------------
 
+## Support level
+
+Warning! There is no warranty for the program, to the extent permitted by applicable law
+This repository is maintained by the community:
+- We do not check compatibility with current versions of Tarantool
+- The Tarantool team does not process requests for support, new functionality, or bug fixes
+- Feel free to take an issue and make a merge request with a solution
+
+
 ## <a name="toc"></a>Table of contents
 --------------------------------------
 
